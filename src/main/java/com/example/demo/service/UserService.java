@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.cache.BalanceCache;
 import com.example.demo.model.entity.User;
 import com.example.demo.repository.UserRepo;
 import jakarta.validation.constraints.NotBlank;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepo userRepo;
+    private final BalanceCache balanceCache;
 
     @Transactional
     public User createUser(@NotBlank String userId, BigDecimal initialBalance) {
@@ -31,12 +33,12 @@ public class UserService {
         return ua;
     }
 
-    @Cacheable(cacheNames = "balances", key = "#userId")
+//    @Cacheable(cacheNames = "balances", key = "#userId")
     public BigDecimal getBalance(String userId) {
-        return userRepo.lambdaQuery()
-                .eq(User::getUserId, userId)
-                .oneOpt()
-                .orElseThrow(() -> new IllegalArgumentException("user not found"))
-                .getBalance();
+            return balanceCache.get(userId, () -> userRepo.lambdaQuery()
+                    .eq(User::getUserId, userId)
+                    .oneOpt()
+                    .orElseThrow(() -> new IllegalArgumentException("user not found"))
+                    .getBalance());
     }
 }
