@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: demo
+
+# define mysql properties here
+  datasource:
+    url: jdbc:mysql://localhost:3306/taskdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: taskuser
+    password: taskpass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # define redis properties here
+  cache:
+    type: redis
+    data:
+      redis:
+        host: localhost
+        port: 6379
+# define rocketmq properties here
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: balance-transfer-producer
+    send-message-timeout: 10000  # 消息发送超时时间，默认为3000毫秒
+    retry-times-when-send-failed: 3  # 同步发送消息失败重试次数，默认为2
+    retry-times-when-send-async-failed: 3  # 异步发送消息失败重试次数，默认为2
+    max-message-size: 4194304 # 消息最大长度，默认为4MB
+  consumer:
+    consume-thread-min: 20  # 最小消费线程数
+    consume-thread-max: 64  # 最大消费线程数
+    consume-message-batch-max-size: 1  # 批量消费消息的最大数量
+    consume-timeout: 15  # 消费超时时间（分钟）
+    max-reconsume-times: 3  # 最大重试消费次数
+    consume-from-where: CONSUME_FROM_LAST_OFFSET  # 消费起始位置
+    # 可选值: CONSUME_FROM_LAST_OFFSET, CONSUME_FROM_FIRST_OFFSET, CONSUME_FROM_TIMESTAMP
+    consuming-timestamp: 1546272000000  # 如果consume-from-where为CONSUME_FROM_TIMESTAMP，则配置开始时间戳
+
+
+app:
+  mq:
+    topic: balance-transfer-events
+  transfer:
+    cancel-window-minutes: 10
+  cache:
+    balance-ttl-seconds: 60
+
